@@ -1,0 +1,42 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Lint Python
+        run: |
+          pip install flake8
+          flake8 .
+
+      - name: Lint JS
+        run: |
+          cd frontend
+          npm install
+          npx eslint .
+
+      - name: Run Tests
+        run: |
+          pip install pytest
+          pytest
+
+      - name: Build Images
+        run: |
+          docker build -t api ./api
+          docker build -t worker ./worker
+          docker build -t frontend ./frontend
+
+      - name: Run Compose
+        run: |
+          docker-compose up -d
+          sleep 20
+          docker-compose down~
