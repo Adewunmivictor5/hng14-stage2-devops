@@ -1,0 +1,14 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    ./api/venv,
+    ./worker/venv,
+    ./frontend/node_modules,
+    .eggs,
+    *.egg
+max-line-length = 100
+ignore = E501,F405,F841,F401
