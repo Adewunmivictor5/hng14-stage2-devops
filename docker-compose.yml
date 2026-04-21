@@ -1,29 +1,36 @@
-version: "3.9"
-
 services:
   redis:
     image: redis:7
+    restart: always
     networks:
       - appnet
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
+      timeout: 3s
       retries: 5
 
   api:
     build: ./api
+    restart: always
     depends_on:
       redis:
         condition: service_healthy
     environment:
       - REDIS_HOST=redis
-    networks:
-      - appnet
     ports:
       - "8000:8000"
+    networks:
+      - appnet
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
 
   worker:
     build: ./worker
+    restart: always
     depends_on:
       redis:
         condition: service_healthy
@@ -34,15 +41,15 @@ services:
 
   frontend:
     build: ./frontend
+    restart: always
     depends_on:
-      api:
-        condition: service_healthy
+      - api
     environment:
       - API_URL=http://api:8000
-    networks:
-      - appnet
     ports:
       - "3000:3000"
+    networks:
+      - appnet
 
 networks:
   appnet:
