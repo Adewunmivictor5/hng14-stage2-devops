@@ -21,13 +21,13 @@ jobs:
           dockerfile: ./api/Dockerfile
 
       # -------------------------
-      # BUILD IMAGE (needed for Trivy)
+      # BUILD DOCKER IMAGE
       # -------------------------
       - name: Build Docker image
         run: docker build -t myapp:latest .
 
       # -------------------------
-      # TRIVY SECURITY SCAN (FIXED)
+      # TRIVY SECURITY SCAN
       # -------------------------
       - name: Run Trivy scan
         uses: aquasecurity/trivy-action@v0.28.0
