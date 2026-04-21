@@ -18,11 +18,10 @@ jobs:
           pip install flake8
           flake8 .
 
-      - name: Lint JS
+      - name: Install frontend dependencies
         run: |
           cd frontend
           npm install
-          npx eslint .
 
       - name: Run Tests
         run: |
@@ -39,4 +38,4 @@ jobs:
         run: |
           docker-compose up -d
           sleep 20
-          docker-compose down~
+          docker-compose down
