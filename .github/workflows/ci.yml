@@ -12,21 +12,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # -------------------------
+      # HADOLINT (Docker lint)
+      # -------------------------
       - name: Run hadolint
         uses: hadolint/hadolint-action@v3.1.0
-
-      - name: Run Trivy scan
-        uses: aquasecurity/trivy-action@0.20.0
         with:
-          scan-type: fs
-          format: table
+          dockerfile: ./api/Dockerfile
 
-      - name: Install dependencies (Python example)
-        run: pip install -r requirements.txt
+      # -------------------------
+      # BUILD IMAGE (needed for Trivy)
+      # -------------------------
+      - name: Build Docker image
+        run: docker build -t myapp:latest .
+
+      # -------------------------
+      # TRIVY SECURITY SCAN (FIXED)
+      # -------------------------
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@v0.28.0
+        with:
+          image-ref: myapp:latest
+          exit-code: 1
+          severity: CRITICAL
+
+      # -------------------------
+      # PYTHON TESTS
+      # -------------------------
+      - name: Install dependencies
+        run: pip install --no-cache-dir -r requirements.txt
 
       - name: Run tests
-        run: pytest
-
-      - name: Cleanup
-        if: always()
-        run: docker compose down -v
+        run: pytest -v
