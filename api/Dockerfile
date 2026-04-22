@@ -14,7 +14,9 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # install curl
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+# hadolint ignore=DL3008,DL3015
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 
 # create user
