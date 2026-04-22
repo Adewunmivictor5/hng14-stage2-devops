@@ -1,4 +1,4 @@
-# ---- Builder ----
+# ---- Builder Stage ----
 FROM node:18-alpine AS builder
 
 WORKDIR /app
@@ -8,19 +8,30 @@ RUN npm install
 
 COPY . .
 
-# ⚠️ No build step because your project doesn't have one
-
-# ---- Production ----
+# ---- Production Stage ----
 FROM node:18-alpine
 
 WORKDIR /app
 
-RUN addgroup -S app && adduser -S app -G app
+RUN apk add --no-cache wget
 
-COPY --from=builder /app ./
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-USER app
+ENV NODE_ENV=production
+
+# ✅ FIXED: copy correct path (NOT /app ./app)
+COPY --from=builder /app /app
+
+# install production deps in final image (IMPORTANT for HNG stability)
+RUN npm ci --omit=dev
+
+RUN chown -R appuser:appgroup /app
+
+USER appuser
 
 EXPOSE 3000
+
+HEALTHCHECK --interval=10s --timeout=3s --retries=3 \
+CMD wget -qO- http://localhost:3000 || exit 1
 
 CMD ["npm", "start"]
